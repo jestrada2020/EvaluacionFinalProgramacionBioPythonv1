@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación de Pandas: DataFrame y Estadística Descriptiva</title>
+    <style>
+        /* Estilos similares a la versión anterior, con pequeños ajustes de color si se desea */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #34495e; /* Gris azulado oscuro */
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9f9; /* Gris muy claro */
+        }
+
+        h1, h2, h3 {
+            color: #154360; /* Azul petróleo */
+        }
+
+        h1 {
+            border-bottom: 2px solid #1a5276; /* Azul oscuro */
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #1f618d; /* Azul medio */
+            margin-top: 30px;
+        }
+
+        .student-info {
+            background-color: #eaf2f8; /* Azul muy claro */
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .student-info input {
+            border: 1px solid #aed6f1; /* Borde azul claro */
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .instructions {
+            background-color: #e6fef3; /* Verde muy pálido */
+            padding: 15px;
+            border-left: 4px solid #1abc9c; /* Turquesa */
+            margin-bottom: 20px;
+            border-radius: 0 5px 5px 0;
+        }
+
+        .question {
+            background-color: white;
+            border: 1px solid #d6eaf8; /* Borde azul pálido */
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 5px rgba(40, 116, 166, 0.1); /* Sombra azulada suave */
+        }
+
+        .question-title {
+            font-weight: bold;
+            color: #1f618d;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 18px;
+        }
+
+        .points {
+            background-color: #1abc9c; /* Turquesa */
+            color: white;
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+
+        .question-description {
+            margin-bottom: 15px;
+            color: #566573; /* Gris oscuro */
+            padding: 10px;
+            background-color: #f8f9fa; /* Gris muy claro */
+            border-radius: 4px;
+        }
+
+        .code-container {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 15px;
+            position: relative;
+            margin-bottom: 15px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        .code-placeholder {
+            background-color: #fef9e7; /* Amarillo muy pálido */
+            border: 1px dashed #f39c12; /* Naranja */
+            border-radius: 3px;
+            padding: 0 5px;
+            color: #333;
+            font-weight: normal;
+            display: inline-block;
+            min-width: 20px;
+        }
+
+        .code-placeholder.correct {
+            background-color: #d4efdf; /* Verde pálido */
+            border: 1px solid #27ae60; /* Verde */
+            color: #145a32;
+        }
+
+        .code-placeholder.incorrect {
+            background-color: #fadedc; /* Rojo pálido */
+            border: 1px solid #e74c3c; /* Rojo */
+            color: #922b21;
+        }
+
+        .code-comment {
+            color: #16a085; /* Turquesa */
+            font-style: italic;
+        }
+
+        button {
+            background-color: #1a5276; /* Azul oscuro */
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        button:hover {
+            background-color: #154360; /* Azul petróleo */
+        }
+
+        .feedback-btn {
+            background-color: #5dade2; /* Azul claro */
+            padding: 8px 15px;
+            font-size: 14px;
+            margin-top: 10px;
+            display: inline-block;
+            margin-left: 0;
+            margin-right: 10px;
+        }
+
+        .feedback-btn:hover {
+            background-color: #2e86c1;
+        }
+
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #eafaf1; /* Verde muy pálido */
+            border-left: 4px solid #27ae60; /* Verde */
+            border-radius: 0 5px 5px 0;
+            display: none;
+        }
+
+        .score-display {
+            font-size: 24px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+            padding: 15px;
+            background-color: #27ae60; /* Verde */
+            color: white;
+            border-radius: 5px;
+        }
+
+        .question-result {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .correct {
+            color: #145a32;
+            font-weight: bold;
+        }
+
+        .incorrect {
+            color: #922b21;
+        }
+
+        .feedback-area {
+            margin-top: 10px;
+            padding: 5px;
+            border-radius: 3px;
+            min-height: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background-color: #27ae60; /* Verde */
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.5s;
+            text-align: center;
+            color: white;
+            line-height: 20px;
+        }
+         /* Estilo para el ejemplo de DataFrame */
+        .dataframe-example {
+             background-color: #f8f9f9;
+             border: 1px solid #d6dbdf;
+             padding: 8px;
+             margin-bottom: 10px;
+             font-family: monospace;
+             white-space: pre;
+             font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Evaluación Interactiva de Python</h1>
+    <h2 style="text-align: center;">Pandas: DataFrame y Estadística Descriptiva (50 puntos)</h2>
+
+    <div class="student-info">
+        <div>
+            <label for="nombre"><strong>Nombre Completo:</strong></label>
+            <input type="text" id="nombre" placeholder="Ingrese su nombre completo">
+        </div>
+        <div>
+            <label for="apellidos"><strong>Apellidos Completos:</strong></label>
+            <input type="text" id="apellidos" placeholder="Ingrese sus apellidos">
+        </div>
+    </div>
+
+    <div class="instructions">
+        <h3>Instrucciones Generales</h3>
+        <ul>
+            <li>Completa los <strong>espacios en blanco</strong> en cada fragmento de código Python.</li>
+            <li>Los espacios están marcados con <span class="code-placeholder">[...]</span>.</li>
+            <li>Los comentarios <span class="code-comment"># Rellena:</span> te dan pistas sobre qué escribir. Usa el alias `pd` para Pandas.</li>
+            <li>Esta evaluación se enfoca **exclusivamente** en el objeto **DataFrame** y cómo obtener **estadísticas descriptivas** de él.</li>
+            <li>**No** se requiere crear o usar métodos específicos de objetos `Series` de forma aislada. Las operaciones se realizan sobre el DataFrame o seleccionando columnas dentro del contexto del DataFrame.</li>
+            <li>Haz clic en <strong>"Verificar Respuesta"</strong> en cada pregunta. Al final, clic en <strong>"Calcular Nota Final"</strong>.</li>
+            <li>Presta atención a la <strong>sintaxis exacta</strong>.</li>
+        </ul>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar">0%</div>
+    </div>
+
+    <h2>Sección de Preguntas (Total: 50 Puntos)</h2>
+
+    <div id="questions-container">
+
+        <h3 style="color: #1f618d; margin-top:40px;">Creación e Inspección de DataFrames</h3>
+
+        <div class="question" id="q1">
+            <div class="question-title">1. Importar Pandas <span class="points">2 Puntos</span></div>
+            <div class="question-description">Importa la librería Pandas con su alias estándar `pd`.</div>
+            <div class="code-container">
+                <pre><span class="code-placeholder" id="q1-part1" contenteditable="true">[...]</span> pandas <span class="code-placeholder" id="q1-part2" contenteditable="true">[...]</span> pd <span class="code-comment"># Rellena: Comando para importar pandas como pd</span>
+print("Pandas importado")</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(1)">Verificar Respuesta</button>
+            <div id="q1-feedback" class="feedback-area"></div>
+        </div>
+
+        <div class="question" id="q2">
+            <div class="question-title">2. Crear un DataFrame <span class="points">2 Puntos</span></div>
+            <div class="question-description">Crea un DataFrame (la estructura tabular principal de Pandas) a partir de un diccionario.</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+datos_dict = {'col_A': [10, 20], 'col_B': [30, 40]}
+df = pd.<span class="code-placeholder" id="q2-part1" contenteditable="true">[...]</span>(datos_dict) <span class="code-comment"># Rellena: Función para crear un DataFrame</span>
+print(df)</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(2)">Verificar Respuesta</button>
+            <div id="q2-feedback" class="feedback-area"></div>
+        </div>
+
+        <div class="question" id="q3">
+            <div class="question-title">3. Dimensiones del DataFrame <span class="points">2 Puntos</span></div>
+            <div class="question-description">Obtén las dimensiones (número de filas y columnas) del DataFrame `df`.</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+data = {'X': [1, 2, 3], 'Y': [4, 5, 6]}
+df = pd.DataFrame(data)
+forma = df.<span class="code-placeholder" id="q3-part1" contenteditable="true">[...]</span> <span class="code-comment"># Rellena: Atributo para obtener la forma (filas, columnas)</span>
+print(f"Filas: {forma[0]}, Columnas: {forma[1]}") # Debería ser 3, 2</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(3)">Verificar Respuesta</button>
+            <div id="q3-feedback" class="feedback-area"></div>
+        </div>
+
+        <div class="question" id="q4">
+            <div class="question-title">4. Nombres de las columnas <span class="points">2 Puntos</span></div>
+            <div class="question-description">Obtén los nombres de las columnas del DataFrame `df`.</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+data = {'Producto': ['A', 'B'], 'Precio': [10, 20]}
+df = pd.DataFrame(data)
+lista_columnas = df.<span class="code-placeholder" id="q4-part1" contenteditable="true">[...]</span> <span class="code-comment"># Rellena: Atributo para obtener los nombres de columna</span>
+print(lista_columnas)</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(4)">Verificar Respuesta</button>
+            <div id="q4-feedback" class="feedback-area"></div>
+        </div>
+
+        <div class="question" id="q5">
+            <div class="question-title">5. Tipos de datos (DataFrame) <span class="points">2 Puntos</span></div>
+            <div class="question-description">Obtén los tipos de datos (dtypes) de cada columna en el DataFrame `df`.</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+data = {'edad': [25, 30], 'altura_m': [1.75, 1.80], 'nombre': ['Ana', 'Luis']}
+df = pd.DataFrame(data)
+tipos = df.<span class="code-placeholder" id="q5-part1" contenteditable="true">[...]</span> <span class="code-comment"># Rellena: Atributo para obtener los tipos de datos</span>
+print(tipos)</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(5)">Verificar Respuesta</button>
+            <div id="q5-feedback" class="feedback-area"></div>
+        </div>
+
+        <div class="question" id="q6">
+            <div class="question-title">6. Información general del DataFrame <span class="points">2 Puntos</span></div>
+            <div class="question-description">Muestra un resumen conciso del DataFrame `df`, incluyendo el índice, columnas, tipos de datos, valores no nulos y uso de memoria.</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+import numpy as np
+data = {'A': [1, 2, np.nan], 'B': [4.0, 5.5, 6.0]}
+df = pd.DataFrame(data)
+df.<span class="code-placeholder" id="q6-part1" contenteditable="true">[...]</span>() <span class="code-comment"># Rellena: Método para obtener información general</span></pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(6)">Verificar Respuesta</button>
+            <div id="q6-feedback" class="feedback-area"></div>
+        </div>
+
+        <h3 style="color: #1f618d; margin-top:40px;">Estadística Descriptiva (Nivel DataFrame)</h3>
+
+        <div class="question" id="q7">
+            <div class="question-title">7. Resumen descriptivo general <span class="points">2 Puntos</span></div>
+            <div class="question-description">Genera un resumen estadístico completo (conteo, media, desviación estándar, mínimo, cuartiles, máximo) para todas las columnas numéricas del DataFrame `df`.</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+data = {'Edad': [22, 25, 30], 'Puntaje': [85, 90, 88]}
+df = pd.DataFrame(data)
+resumen = df.<span class="code-placeholder" id="q7-part1" contenteditable="true">[...]</span>() <span class="code-comment"># Rellena: Método para obtener el resumen descriptivo</span>
+print(resumen)</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(7)">Verificar Respuesta</button>
+            <div id="q7-feedback" class="feedback-area"></div>
+        </div>
+
+        <div class="question" id="q8">
+            <div class="question-title">8. Media de todas las columnas <span class="points">2 Puntos</span></div>
+            <div class="question-description">Calcula la media (promedio) para cada columna numérica del DataFrame `df`.</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+data = {'A': [10, 20], 'B': [100, 200], 'C': [1, 3]}
+df = pd.DataFrame(data)
+medias_df = df.<span class="code-placeholder" id="q8-part1" contenteditable="true">[...]</span>() <span class="code-comment"># Rellena: Método para calcular la media por columna</span>
+print(medias_df)</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(8)">Verificar Respuesta</button>
+            <div id="q8-feedback" class="feedback-area"></div>
+        </div>
+
+        <div class="question" id="q9">
+            <div class="question-title">9. Suma de todas las columnas <span class="points">2 Puntos</span></div>
+            <div class="question-description">Calcula la suma de los valores para cada columna numérica del DataFrame `df`.</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+data = {'Ventas_Ene': [100, 150], 'Ventas_Feb': [110, 140]}
+df = pd.DataFrame(data)
+sumas_df = df.<span class="code-placeholder" id="q9-part1" contenteditable="true">[...]</span>() <span class="code-comment"># Rellena: Método para calcular la suma por columna</span>
+print(sumas_df)</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(9)">Verificar Respuesta</button>
+            <div id="q9-feedback" class="feedback-area"></div>
+        </div>
+
+        <div class="question" id="q10">
+            <div class="question-title">10. Conteo de no nulos por columna <span class="points">2 Puntos</span></div>
+            <div class="question-description">Cuenta cuántos valores no nulos (no NaN) hay en cada columna del DataFrame `df`.</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+import numpy as np
+data = {'A': [1, np.nan, 3], 'B': [4, 5, 6]}
+df = pd.DataFrame(data)
+conteo_no_nulos = df.<span class="code-placeholder" id="q10-part1" contenteditable="true">[...]</span>() <span class="code-comment"># Rellena: Método para contar valores no nulos por columna</span>
+print(conteo_no_nulos)</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(10)">Verificar Respuesta</button>
+            <div id="q10-feedback" class="feedback-area"></div>
+        </div>
+
+        <h3 style="color: #1f618d; margin-top:40px;">Estadística Descriptiva (Aplicada a Columnas)</h3>
+
+        <div class="question" id="q11">
+            <div class="question-title">11. Media de una columna específica <span class="points">2 Puntos</span></div>
+            <div class="question-description">Calcula la media (promedio) únicamente para la columna 'Edad' del DataFrame `df`.</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+data = {'Nombre': ['A', 'B', 'C'], 'Edad': [20, 30, 40]}
+df = pd.DataFrame(data)
+media_edad = df['Edad'].<span class="code-placeholder" id="q11-part1" contenteditable="true">[...]</span>() <span class="code-comment"># Rellena: Método para calcular la media de la columna</span>
+print(media_edad) # Debería ser 30.0</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(11)">Verificar Respuesta</button>
+            <div id="q11-feedback" class="feedback-area"></div>
+        </div>
+
+        <div class="question" id="q12">
+            <div class="question-title">12. Mediana de una columna específica <span class="points">2 Puntos</span></div>
+            <div class="question-description">Calcula la mediana (el valor central) para la columna 'Salario' del DataFrame `df`.</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+data = {'Empleado': [1, 2, 3, 4], 'Salario': [3000, 3200, 2800, 5000]}
+df = pd.DataFrame(data)
+mediana_salario = df['Salario'].<span class="code-placeholder" id="q12-part1" contenteditable="true">[...]</span>() <span class="code-comment"># Rellena: Método para calcular la mediana de la columna</span>
+print(mediana_salario) # Debería ser 3100.0</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(12)">Verificar Respuesta</button>
+            <div id="q12-feedback" class="feedback-area"></div>
+        </div>
+
+        <div class="question" id="q13">
+            <div class="question-title">13. Moda de una columna específica <span class="points">2 Puntos</span></div>
+            <div class="question-description">Encuentra el valor más frecuente (moda) en la columna 'Ciudad' del DataFrame `df`. (Obtén solo el primer valor si hay múltiples modas).</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+data = {'Ciudad': ['A', 'B', 'A', 'C', 'B', 'A']}
+df = pd.DataFrame(data)
+moda_ciudad = df['Ciudad'].<span class="code-placeholder" id="q13-part1" contenteditable="true">[...]</span>[0] <span class="code-comment"># Rellena: Método para calcular la moda (y acceder al primer elemento)</span>
+print(moda_ciudad) # Debería ser 'A'</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(13)">Verificar Respuesta</button>
+            <div id="q13-feedback" class="feedback-area"></div>
+        </div>
+
+        <div class="question" id="q14">
+            <div class="question-title">14. Suma de una columna específica <span class="points">2 Puntos</span></div>
+            <div class="question-description">Calcula la suma total de los valores en la columna 'Ventas' del DataFrame `df`.</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+data = {'Mes': ['Ene', 'Feb'], 'Ventas': [5000, 6500]}
+df = pd.DataFrame(data)
+total_ventas = df['Ventas'].<span class="code-placeholder" id="q14-part1" contenteditable="true">[...]</span>() <span class="code-comment"># Rellena: Método para calcular la suma de la columna</span>
+print(total_ventas) # Debería ser 11500</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(14)">Verificar Respuesta</button>
+            <div id="q14-feedback" class="feedback-area"></div>
+        </div>
+
+        <div class="question" id="q15">
+            <div class="question-title">15. Desviación estándar de una columna <span class="points">2 Puntos</span></div>
+            <div class="question-description">Calcula la desviación estándar (medida de dispersión) para la columna 'Notas' del DataFrame `df`.</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+data = {'Estudiante': [1, 2, 3], 'Notas': [7, 8, 9]}
+df = pd.DataFrame(data)
+std_notas = df['Notas'].<span class="code-placeholder" id="q15-part1" contenteditable="true">[...]</span>() <span class="code-comment"># Rellena: Método para calcular la desviación estándar</span>
+print(round(std_notas, 2)) # Debería ser 1.0</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(15)">Verificar Respuesta</button>
+            <div id="q15-feedback" class="feedback-area"></div>
+        </div>
+
+        <div class="question" id="q16">
+            <div class="question-title">16. Valor mínimo de una columna <span class="points">2 Puntos</span></div>
+            <div class="question-description">Encuentra el valor mínimo en la columna 'Precio' del DataFrame `df`.</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+data = {'Producto': ['X', 'Y', 'Z'], 'Precio': [50, 45, 60]}
+df = pd.DataFrame(data)
+min_precio = df['Precio'].<span class="code-placeholder" id="q16-part1" contenteditable="true">[...]</span>() <span class="code-comment"># Rellena: Método para encontrar el mínimo</span>
+print(min_precio) # Debería ser 45</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(16)">Verificar Respuesta</button>
+            <div id="q16-feedback" class="feedback-area"></div>
+        </div>
+
+        <div class="question" id="q17">
+            <div class="question-title">17. Valor máximo de una columna <span class="points">2 Puntos</span></div>
+            <div class="question-description">Encuentra el valor máximo en la columna 'Cantidad' del DataFrame `df`.</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+data = {'Item': [1, 2, 3], 'Cantidad': [100, 250, 180]}
+df = pd.DataFrame(data)
+max_cantidad = df['Cantidad'].<span class="code-placeholder" id="q17-part1" contenteditable="true">[...]</span>() <span class="code-comment"># Rellena: Método para encontrar el máximo</span>
+print(max_cantidad) # Debería ser 250</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(17)">Verificar Respuesta</button>
+            <div id="q17-feedback" class="feedback-area"></div>
+        </div>
+
+        <div class="question" id="q18">
+            <div class="question-title">18. Contar valores únicos en columna <span class="points">2 Puntos</span></div>
+            <div class="question-description">Calcula cuántos valores *únicos* diferentes existen en la columna 'Categoria' del DataFrame `df`.</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+data = {'Categoria': ['A', 'B', 'A', 'C', 'B', 'A']}
+df = pd.DataFrame(data)
+n_unicos = df['Categoria'].<span class="code-placeholder" id="q18-part1" contenteditable="true">[...]</span>() <span class="code-comment"># Rellena: Método para contar valores únicos</span>
+print(n_unicos) # Debería ser 3 (A, B, C)</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(18)">Verificar Respuesta</button>
+            <div id="q18-feedback" class="feedback-area"></div>
+        </div>
+
+        <div class="question" id="q19">
+            <div class="question-title">19. Frecuencia de valores en columna <span class="points">2 Puntos</span></div>
+            <div class="question-description">Obtén la frecuencia (conteo) de cada valor único en la columna 'Tipo' del DataFrame `df`.</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+data = {'Tipo': ['X', 'Y', 'X', 'Z', 'Y', 'X']}
+df = pd.DataFrame(data)
+frecuencias = df['Tipo'].<span class="code-placeholder" id="q19-part1" contenteditable="true">[...]</span>() <span class="code-comment"># Rellena: Método para obtener el conteo de valores</span>
+print(frecuencias)</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(19)">Verificar Respuesta</button>
+            <div id="q19-feedback" class="feedback-area"></div>
+        </div>
+
+        <div class="question" id="q20">
+            <div class="question-title">20. Calcular un cuantil (percentil) <span class="points">2 Puntos</span></div>
+            <div class="question-description">Calcula el percentil 75 (cuantil 0.75) para la columna 'Puntos' del DataFrame `df`.</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+data = {'Puntos': [10, 20, 30, 40, 50, 60, 70, 80]}
+df = pd.DataFrame(data)
+p75 = df['Puntos'].<span class="code-placeholder" id="q20-part1" contenteditable="true">[...]</span>(0.75) <span class="code-comment"># Rellena: Método para calcular el cuantil</span>
+print(p75) # Debería ser 62.5</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(20)">Verificar Respuesta</button>
+            <div id="q20-feedback" class="feedback-area"></div>
+        </div>
+
+        <h3 style="color: #1f618d; margin-top:40px;">Estadísticas entre Columnas / Ejes</h3>
+
+        <div class="question" id="q21">
+            <div class="question-title">21. Media por fila <span class="points">3 Puntos</span></div>
+            <div class="question-description">Calcula la media de los valores numéricos para cada fila del DataFrame `df`.</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+data = {'Prueba1': [8, 9], 'Prueba2': [7, 10], 'Prueba3': [9, 8]}
+df = pd.DataFrame(data)
+media_filas = df.<span class="code-placeholder" id="q21-part1" contenteditable="true">[...]</span>(axis=1) <span class="code-comment"># Rellena: Método mean especificando el eje de filas</span>
+print(media_filas)</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(21)">Verificar Respuesta</button>
+            <div id="q21-feedback" class="feedback-area"></div>
+        </div>
+
+        <div class="question" id="q22">
+            <div class="question-title">22. Suma por fila <span class="points">3 Puntos</span></div>
+            <div class="question-description">Calcula la suma de los valores numéricos para cada fila del DataFrame `df`.</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+data = {'Gasto1': [100, 200], 'Gasto2': [50, 75]}
+df = pd.DataFrame(data)
+suma_filas = df.<span class="code-placeholder" id="q22-part1" contenteditable="true">[...]</span>(axis=1) <span class="code-comment"># Rellena: Método sum especificando el eje de filas</span>
+print(suma_filas)</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(22)">Verificar Respuesta</button>
+            <div id="q22-feedback" class="feedback-area"></div>
+        </div>
+
+        <div class="question" id="q23">
+            <div class="question-title">23. Correlación entre columnas <span class="points">2 Puntos</span></div>
+            <div class="question-description">Calcula la matriz de correlación de Pearson entre todas las columnas numéricas del DataFrame `df`.</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+data = {'A': [1, 2, 3], 'B': [2, 4, 7], 'C': [5, 3, 1]}
+df = pd.DataFrame(data)
+matriz_corr = df.<span class="code-placeholder" id="q23-part1" contenteditable="true">[...]</span>() <span class="code-comment"># Rellena: Método para calcular la correlación</span>
+print(matriz_corr)</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(23)">Verificar Respuesta</button>
+            <div id="q23-feedback" class="feedback-area"></div>
+        </div>
+
+        <div class="question" id="q24">
+            <div class="question-title">24. Índice del valor máximo en columna <span class="points">2 Puntos</span></div>
+            <div class="question-description">Encuentra la etiqueta del índice donde se encuentra el valor máximo de la columna 'Puntaje'.</div>
+            <div class="code-container">
+                <pre>import pandas as pd
+data = {'Puntaje': [85, 95, 90]}
+df = pd.DataFrame(data, index=['Juan', 'Ana', 'Luis'])
+indice_max = df['Puntaje'].<span class="code-placeholder" id="q24-part1" contenteditable="true">[...]</span>() <span class="code-comment"># Rellena: Método para obtener el índice del máximo</span>
+print(indice_max) # Debería ser 'Ana'</pre>
+            </div>
+            <button class="feedback-btn" onclick="checkAnswer(24)">Verificar Respuesta</button>
+            <div id="q24-feedback" class="feedback-area"></div>
+        </div>
+
+    </div>
+
+    <button id="calculate-btn" onclick="calculateFinalGrade()">Calcular Nota Final</button>
+
+    <div class="results" id="results">
+        <h2>Resultados de la Evaluación</h2>
+        <div id="results-details"></div>
+        <div class="score-display" id="score-display"></div>
+    </div>
+
+    <script>
+        // Respuestas correctas para cada pregunta
+        const correctAnswers = {
+            // Creación/Inspección (6)
+            q1: ["import", "as"],
+            q2: ["DataFrame"],
+            q3: ["shape"],
+            q4: ["columns"],
+            q5: ["dtypes"],
+            q6: ["info"],
+            // Stats DataFrame Level (4)
+            q7: ["describe"],
+            q8: ["mean"],
+            q9: ["sum"],
+            q10: ["count"],
+            // Stats Column Level (10)
+            q11: ["mean"],
+            q12: ["median"],
+            q13: ["mode()"], // Requiere paréntesis
+            q14: ["sum"],
+            q15: ["std"],
+            q16: ["min"],
+            q17: ["max"],
+            q18: ["nunique"],
+            q19: ["value_counts"],
+            q20: ["quantile"],
+            // Stats Axes/Other (4)
+            q21: ["mean"], // axis=1 se da en el código
+            q22: ["sum"],  // axis=1 se da en el código
+            q23: ["corr"],
+            q24: ["idxmax"]
+        };
+
+        // Valores de puntos para cada pregunta (total 50 puntos)
+        const pointValues = {
+            // Creación/Inspección (12 pts)
+            q1: 2, q2: 2, q3: 2, q4: 2, q5: 2, q6: 2,
+            // Stats DataFrame Level (8 pts)
+            q7: 2, q8: 2, q9: 2, q10: 2,
+            // Stats Column Level (20 pts)
+            q11: 2, q12: 2, q13: 2, q14: 2, q15: 2, q16: 2, q17: 2, q18: 2, q19: 2, q20: 2,
+             // Stats Axes/Other (10 pts)
+            q21: 3, q22: 3, q23: 2, q24: 2
+        }; // Suma: 22 * 2 + 2 * 3 = 44 + 6 = 50 puntos
+
+        // Objeto para almacenar los resultados y estado de verificación
+        const results = {};
+        const verified = {};
+
+        // Función para verificar una respuesta individual
+        function checkAnswer(questionNumber) {
+            const questionId = `q${questionNumber}`;
+            const feedbackDiv = document.getElementById(`${questionId}-feedback`);
+            feedbackDiv.innerHTML = "";
+
+            let allCorrect = true;
+            let correctCount = 0;
+            const correctAnswersList = correctAnswers[questionId];
+            const totalParts = correctAnswersList.length;
+
+            for (let i = 1; i <= totalParts; i++) {
+                const partId = `${questionId}-part${i}`;
+                const placeholder = document.getElementById(partId);
+                 if (!placeholder) {
+                    console.error(`Placeholder ${partId} no encontrado.`);
+                    continue;
+                }
+                const userAnswer = placeholder.textContent.trim();
+                let correctAnswer = correctAnswersList[i-1];
+
+                placeholder.classList.remove("correct", "incorrect");
+
+                // Normalizar: quitar paréntesis finales si la respuesta no los lleva (para atributos)
+                // y comparar sin ellos si la respuesta correcta es un atributo.
+                // Para .mode()[0], quitar el [0] y comparar solo .mode()
+                let normalizedUserAnswer = userAnswer;
+                let normalizedCorrectAnswer = correctAnswer;
+
+                // Quitar paréntesis para atributos
+                if (!correctAnswer.includes("()")) {
+                    normalizedUserAnswer = userAnswer.replace(/\(\)$/, '');
+                }
+                // Caso especial para mode
+                 if (questionId === 'q13' && correctAnswer === 'mode()') {
+                    normalizedUserAnswer = userAnswer.replace(/\[0\]$/, ''); // Quita '[0]' al final si existe
+                 }
+
+
+                if (normalizedUserAnswer === normalizedCorrectAnswer) {
+                    placeholder.classList.add("correct");
+                    correctCount++;
+                } else {
+                    // Intento adicional: si la respuesta correcta es un método,
+                    // verificar si el usuario olvidó los paréntesis
+                    if (correctAnswer.includes("()") && !userAnswer.includes("()")) {
+                         if (userAnswer + "()" === correctAnswer) {
+                             placeholder.classList.add("incorrect"); // Marcar incorrecto pero dar pista? No, mantener incorrecto.
+                             allCorrect = false;
+                             // Podríamos añadir un feedback específico aquí si quisiéramos
+                         } else {
+                             placeholder.classList.add("incorrect");
+                             allCorrect = false;
+                         }
+                    }
+                    else {
+                        placeholder.classList.add("incorrect");
+                        allCorrect = false;
+                    }
+                }
+            }
+
+            const questionScore = totalParts > 0 ? (correctCount / totalParts) * pointValues[questionId] : (allCorrect ? pointValues[questionId] : 0);
+            results[questionId] = questionScore;
+            verified[questionId] = true;
+
+             // Mostrar retroalimentación con colores
+             if (allCorrect) {
+                feedbackDiv.innerHTML = `<span class="correct">¡Correcto! (+${pointValues[questionId]} puntos)</span>`;
+                feedbackDiv.style.backgroundColor = '#d4efdf'; // Verde pálido
+            } else if (correctCount > 0) {
+                feedbackDiv.innerHTML = `<span class="incorrect">Parcialmente correcto (${correctCount}/${totalParts} partes correctas. +${questionScore.toFixed(1)} puntos)</span>`;
+                feedbackDiv.style.backgroundColor = '#fef9e7'; // Amarillo pálido
+            } else {
+                feedbackDiv.innerHTML = `<span class="incorrect">Incorrecto. Revisa el método o atributo. (+0 puntos)</span>`;
+                feedbackDiv.style.backgroundColor = '#fadedc'; // Rojo pálido
+            }
+
+            updateProgressBar();
+        }
+
+        // Función para calcular la nota final (sin cambios)
+        function calculateFinalGrade() {
+            let totalScore = 0;
+            let resultsHTML = "";
+            let totalPossible = 0;
+            const totalQuestions = Object.keys(pointValues).length;
+
+            for (let i = 1; i <= totalQuestions; i++) {
+                const questionId = `q${i}`;
+                 if (!verified[questionId]) { checkAnswer(i); }
+                totalPossible += pointValues[questionId];
+                const questionScore = results[questionId] || 0;
+                totalScore += questionScore;
+                resultsHTML += `<div class="question-result"><strong>Pregunta ${i}:</strong> ${questionScore.toFixed(1)} / ${pointValues[questionId]} puntos</div>`;
+            }
+
+            document.getElementById('results-details').innerHTML = resultsHTML;
+            const percentage = totalPossible > 0 ? (totalScore / totalPossible) * 100 : 0;
+            let gradeMessage = "";
+
+             if (percentage >= 90) gradeMessage = "¡Excelente manejo de DataFrames y estadística descriptiva!";
+            else if (percentage >= 80) gradeMessage = "¡Muy buen trabajo aplicando estadística a DataFrames!";
+            else if (percentage >= 70) gradeMessage = "Buen conocimiento de DataFrames y sus estadísticas";
+            else if (percentage >= 60) gradeMessage = "Aprobado, ¡refuerza algunos métodos estadísticos!";
+            else gradeMessage = "Necesitas practicar más la estadística descriptiva con DataFrames";
+
+            const nombre = document.getElementById('nombre').value || "Estudiante";
+            const apellidos = document.getElementById('apellidos').value || "";
+            const fullName = `${nombre} ${apellidos}`.trim();
+
+            document.getElementById('score-display').innerHTML = `
+                <strong>${fullName}</strong><br>
+                ${gradeMessage}<br>
+                Puntaje Total: ${totalScore.toFixed(1)} / ${totalPossible} puntos<br>
+                Porcentaje: ${percentage.toFixed(1)}%
+            `;
+
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Función para actualizar la barra de progreso (sin cambios)
+        function updateProgressBar() {
+            const totalQuestions = Object.keys(pointValues).length;
+            const verifiedCount = Object.keys(verified).length;
+            const progressPercentage = totalQuestions > 0 ? (verifiedCount / totalQuestions) * 100 : 0;
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = `${progressPercentage}%`;
+            progressBar.textContent = `${Math.round(progressPercentage)}% Verificado`;
+        }
+
+        // Hacer que los placeholders sean editables (sin cambios)
+        document.querySelectorAll('.code-placeholder').forEach(placeholder => {
+            placeholder.dataset.placeholder = '[...]';
+            placeholder.addEventListener('focus', function() { if (this.textContent === this.dataset.placeholder) { this.textContent = ""; } this.style.minWidth = '40px'; });
+            placeholder.addEventListener('blur', function() { if (this.textContent.trim() === "") { this.textContent = this.dataset.placeholder; } this.style.minWidth = '20px'; });
+            if (placeholder.textContent.trim() === '') { placeholder.textContent = placeholder.dataset.placeholder; }
+        });
+
+        // Inicializar barra de progreso al cargar
+        updateProgressBar();
+
+    </script>
+</body>
+</html>
